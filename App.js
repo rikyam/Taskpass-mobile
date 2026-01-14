@@ -1,12 +1,23 @@
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { DataProvider } from './src/contexts/DataContext';
-import { DailyScheduleScreen } from './src/screens/DailyScheduleScreen';
+import { PomoProvider } from './src/contexts/PomoContext';
+import ScheduleScreen from './src/screens/ScheduleScreen';
 
 export default function App() {
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const handleEditItem = (item) => {
+    console.log('Edit item:', item);
+    // TODO: Add edit modal
+  };
+
   return (
-    <DataProvider>
-      <DailyScheduleScreen />
+    <PomoProvider>
+      <ScheduleScreen
+        currentDate={currentDate}
+        onEditItem={handleEditItem}
+      />
       <StatusBar style="auto" />
-    </DataProvider>
+    </PomoProvider>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext, createContext } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getSampleTasks, getSampleEvents } from '../utils/sampleData';
 
 const PomoContext = createContext();
 
@@ -18,8 +19,22 @@ export const PomoProvider = ({ children }) => {
           AsyncStorage.getItem('ps_events'),
           AsyncStorage.getItem('ps_passed')
         ]);
-        if (t) setTasks(JSON.parse(t));
-        if (e) setEvents(JSON.parse(e));
+
+        // Load existing data or use sample data for first time
+        if (t) {
+          setTasks(JSON.parse(t));
+        } else {
+          const sampleTasks = getSampleTasks();
+          setTasks(sampleTasks);
+        }
+
+        if (e) {
+          setEvents(JSON.parse(e));
+        } else {
+          const sampleEvents = getSampleEvents();
+          setEvents(sampleEvents);
+        }
+
         if (p) setPassedTasks(JSON.parse(p));
       } catch (err) {
         console.error("Failed to load data", err);

@@ -1,5 +1,5 @@
 import React, { useRef, useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { format, isSameDay, differenceInMinutes } from 'date-fns';
 import { usePomoStore } from '../contexts/PomoContext';
@@ -9,10 +9,13 @@ import { DraggableScheduleItem } from '../components/DraggableScheduleItem';
 const HOUR_HEIGHT = 180; // 3px per minute * 60
 
 export default function ScheduleScreen({ currentDate, onEditItem }) {
-  const { tasks, events, updateTask, updateEvent } = usePomoStore();
+  const { tasks, events, updateTask, updateEvent, loading } = usePomoStore();
   const scrollViewRef = useRef(null);
 
-  const viewItems = useMemo(() => calculateSchedule(tasks, events, currentDate), [tasks, events, currentDate]);
+  const viewItems = useMemo(() => {
+    if (loading) return [];
+    return calculateSchedule(tasks, events, currentDate);
+  }, [tasks, events, currentDate, loading]);
 
   const handleUpdateTime = (item, newStart, newEnd) => {
     // Don't allow rescheduling travel time or locked items
@@ -65,6 +68,17 @@ export default function ScheduleScreen({ currentDate, onEditItem }) {
     );
   };
 
+  if (loading) {
+    return (
+      <GestureHandlerRootView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#6366f1" />
+          <Text style={styles.loadingText}>Loading schedule...</Text>
+        </View>
+      </GestureHandlerRootView>
+    );
+  }
+
   return (
     <GestureHandlerRootView style={styles.container}>
       <ScrollView
@@ -85,6 +99,16 @@ export default function ScheduleScreen({ currentDate, onEditItem }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: '#64748b',
+  },
   hourRow: { position: 'absolute', width: '100%', flexDirection: 'row', alignItems: 'center', height: 1 },
   hourLabel: { width: 50, textAlign: 'right', fontSize: 10, color: '#94a3b8', paddingRight: 8 },
   hourLine: { flex: 1, height: 1, backgroundColor: '#e2e8f0' },
